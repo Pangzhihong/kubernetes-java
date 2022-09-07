@@ -1,47 +1,333 @@
+
+---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
-  annotations:
-    controller-gen.kubebuilder.io/version: v0.4.1
-  creationTimestamp: null
-  name: newkinds.my.group.com
+  name: podtasks.apps.nova.io
 spec:
-  group: my.group.com
+  group: apps.nova.io
   names:
-    kind: NewKind
-    listKind: NewKindList
-    plural: newkinds
-    singular: newkind
+    kind: PodTask
+    listKind: PodTaskList
+    plural: podtasks
+    singular: podtask
   scope: Namespaced
   versions:
-    - name: v1
-      schema:
-        openAPIV3Schema:
-          description: NewKind is the Schema for the NewKind API
-          properties:
-            apiVersion:
-              description: 'desc'
-              type: string
-            kind:
-              description: 'desc'
-              type: string
-            metadata:
-              type: object
-            spec:
-              description: NewKind defines the desired state of NewKind
-              properties:
-                key:
-                  description: key value which generated using a hash method
-                  type: string
-              type: object
-          type: object
+    - name: v1alpha1
       served: true
       storage: true
-      subresources:
-        status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
+      schema:
+        openAPIV3Schema:
+          description: The Schema for the podtasks API
+          type: object
+          properties:
+            spec:
+              description: PodTaskSpec defines the desired state of PodTask
+              type: object
+              properties:
+                operation:
+                  description: The pod task operation.
+                  type: string
+                requestID:
+                  description: The pod task requestId.
+                  type: string
+                server:
+                  description: The related server of pod task.
+                  type: string
+                serverTaskID:
+                  type: string
+                podName:
+                  description: The related pod of pod task
+                  type: string
+                parameters:
+                  type: object
+                  properties:
+                    snapshot:
+                      type: object
+                      properties:
+                        kind:
+                          type: string
+                        name:
+                          type: string
+                        backupType:
+                          type: string
+                        rotation:
+                          format: int32
+                          type: integer
+                        metadata:
+                          type: object
+                          additionalProperties:
+                            type: string
+                    network:
+                      type: object
+                      properties:
+                        portID:
+                          type: string
+                        netID:
+                          type: string
+                        portState:
+                          type: string
+                        fixedIps:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              ipAddress:
+                                type: string
+                              subnetID:
+                                type: string
+                        macAddr:
+                          type: string
+                        tag:
+                          type: string
+                    volume:
+                      type: object
+                      properties:
+                        volumeID:
+                          type: string
+                        device:
+                          type: string
+                        tag:
+                          type: string
+                        deleteOnTermination:
+                          type: boolean
+                      required:
+                        - volumeID
+                    migration:
+                      type: object
+                      properties:
+                        diskConfig:
+                          type: string
+                        dstHost:
+                          type: string
+                        migrationID:
+                          type: string
+                        sourceIP:
+                          type: string
+                        blockMigration:
+                          type: string
+                        podUID:
+                          type: string
+                        dstNodeIP:
+                          type: string
+                        flavor:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                            displayName:
+                              type: string
+                            isPublic:
+                              type: boolean
+                            disabled:
+                              type: boolean
+                            ram:
+                              type: integer
+                              format: int32
+                              minimum: 0
+                            vcpus:
+                              type: integer
+                              format: int32
+                              minimum: 0
+                            disk:
+                              type: integer
+                              format: int32
+                              minimum: 0
+                            ephemeralDisk:
+                              type: integer
+                              format: int32
+                              minimum: 0
+                            swap:
+                              type: integer
+                              format: int32
+                              minimum: 0
+                            projects:
+                              type: array
+                              items:
+                                type: string
+                            extraSpecs:
+                              type: object
+                              x-kubernetes-preserve-unknown-fields: true
+                            description:
+                              type: string
+                    rebuild:
+                      type: object
+                      properties:
+                        imageRef:
+                          type: string
+                        diskConfig:
+                          type: boolean
+                        adminPass:
+                          type: string
+                        name:
+                          type: string
+                        userData:
+                          type: string
+                        keyPair:
+                          type: object
+                          properties:
+                            keyName:
+                              type: string
+                            type:
+                              type: string
+                            publicKey:
+                              type: string
+                            fingerprint:
+                              type: string
+                        preserveEphemeral:
+                          type: boolean
+                        trustedImageCertificates:
+                          type: array
+                          items:
+                            type: string
+                    metadata:
+                      type: object
+                      additionalProperties:
+                        type: string
+                    adminPass:
+                      type: string
+                    newState:
+                      type: string
+                token:
+                  description: The servertask token
+                  type: object
+                  properties:
+                    projectID:
+                      type: string
+                    userID:
+                      type: string
+                    userName:
+                      type: string
+                    authToken:
+                      type: string
+                    roles:
+                      type: array
+                      items:
+                        type: string
+                    isAdmin:
+                      type: boolean
+                    serviceCatalog:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          type:
+                            type: string
+                          endpoints:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                region:
+                                  type: string
+                                adminURL:
+                                  type: string
+                                internalURL:
+                                  type: string
+                                publicURL:
+                                  type: string
+              required:
+                - operation
+                - requestID
+                - server
+            status:
+              description: Defines the observed state of PodTask
+              type: object
+              properties:
+                phase:
+                  description: The pod task phase.
+                  type: string
+                reason:
+                  type: string
+                response:
+                  description: The pod task response.
+                  type: object
+                  properties:
+                    errorMsg:
+                      type: string
+                    volumes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          bootIndex:
+                            format: int32
+                            type: integer
+                          deleteOnTermination:
+                            type: boolean
+                          destinationType:
+                            type: string
+                          deviceName:
+                            type: string
+                          diskBus:
+                            type: string
+                          deviceType:
+                            type: string
+                          guestFormat:
+                            type: string
+                          noDevice:
+                            type: boolean
+                          sourceType:
+                            type: string
+                          uuid:
+                            type: string
+                          volumeSize:
+                            format: int32
+                            type: integer
+                          tag:
+                            type: string
+                          volumeType:
+                            type: string
+                      required:
+                        - destinationType
+                        - sourceType
+                    networks:
+                      type: array
+                      items:
+                        type: object
+                        description: NetworkInServer defines the desired state of Flavor
+                        properties:
+                          netID:
+                            description: network ID.
+                            type: string
+                          portID:
+                            description: port ID.
+                            type: string
+                          portState:
+                            type: string
+                          fixedIps:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                ipAddress:
+                                  type: string
+                                subnetID:
+                                  type: string
+                          macAddr:
+                            type: string
+                          tag:
+                            type: string
+                    snapshot:
+                      type: object
+                      properties:
+                        imageID:
+                          type: string
+      additionalPrinterColumns:
+        - name: operation
+          type: string
+          jsonPath: .spec.operation
+        - name: status
+          type: string
+          jsonPath: .status.phase
+        - name: node
+          type: string
+          jsonPath: .metadata.nodeName
+        - name: serverID
+          type: string
+          jsonPath: .spec.server
+        - name: age
+          type: date
+          jsonPath: .metadata.creationTimestamp
